@@ -1,0 +1,4 @@
+cmake_minimum_required(VERSION 4.0.0)
+project(RayTracer)
+
+add_executable(ray-tracer src/main.cpp)
