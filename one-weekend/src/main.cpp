@@ -2,10 +2,27 @@
 
 #include "vec3.h"
 #include "ray.h"
-#include "color.h"
+#include "colour.h"
 
-colour ray_colour(const ray& y) {
-    return colour(0, 0, 0);
+bool hit_sphere(const point3& center, double radius, const ray& r) {
+    vec3 oc = center - r.origin();
+    auto a = dot(r.direction(), r.direction());
+    auto b = -2.0 * dot(r.direction(), oc);
+    auto c = dot(oc, oc) - radius*radius;
+    auto discriminant = b*b - 4*a*c;
+    if (discriminant < 0) return false;
+    auto t = (-b - sqrt(discriminant)) / (2.0 * a);
+    return t > 0;
+}
+
+colour ray_colour(const ray& r) {
+    if (hit_sphere(point3(0, 0, 1), 0.5, r)) {
+        return colour(1, 0, 0);
+    }
+
+    vec3 unit_direction = unit_vector(r.direction());
+    auto a = 0.5*(unit_direction.y() + 1.0);
+    return (1.0 - a) * colour(1.0, 1.0, 1.0) + a * colour(0.5, 0.7, 1.0);
 }
 
 int main() {
@@ -36,7 +53,7 @@ int main() {
         return 1;
     }
 
-    file << "P3\n" << image_height << ' ' << image_width << "\n255\n";
+    file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
     for (int j = 0; j < image_height; j++) {
         std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
